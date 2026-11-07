@@ -100,3 +100,26 @@ render_cache/
 cadence.db
 eca.db
 
+# Supabase
+supabase/.temp/
+supabase/.branches/
+
+# Turborepo
+.turbo/
+
+# Docker volumes (local dev)
+docker/volumes/
+
+# Playwright browsers cache
+.cache/ms-playwright/
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# MinIO local data
+minio-data/
+
+# Stitch design artifacts (generated HTML mockups)
+stitch-mockups/
+

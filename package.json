@@ -1,0 +1,22 @@
+{
+  "name": "agencia-creativa-eca",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ECA — Estudio Creativo Agéntico (Dual-Edition: Internal ALIHANED & SaaS Multi-Tenant)",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\""
+  },
+  "devDependencies": {
+    "turbo": "^2.4.0",
+    "prettier": "^3.4.0",
+    "typescript": "^5.7.0"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
