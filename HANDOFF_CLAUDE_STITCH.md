@@ -14,6 +14,30 @@ Utilizarás las herramientas de diseño generativo de Google (**Stitch / Generat
 
 ---
 
+## 👑 GOBERNANZA AGÉNTICA: "EVA" (HERMES DEDICADO EN TELEGRAM)
+ECA replica la arquitectura probada del **Laboratorio Tony**, pero adaptada como un **Laboratorio de Contenido para Redes Sociales**:
+- **Agente Principal:** **Eva** (Directora Creativa Agéntica).
+- **Runtime:** Contenedor Docker dedicado corriendo **Hermes** en `dokploy-network` con su propio bot token de Telegram.
+- **Cuadrilla de Subagentes de Eva:**
+  1. `Atlas` (profile: `scout`): Rastreador de tendencias, ideas virales y ángulos de nicho.
+  2. `Vera` (profile: `scribe`): Redacción de guiones, hooks de 3s, copys y hashtags.
+  3. `Kite` (profile: `dev`): Dirección visual, prompter de Higgsfield AI y maquetador de templates 9:16.
+  4. `Orin` (profile: `reach`): Programador y despachador en Postiz + analítica social.
+- **Interacción por Telegram:** El usuario puede enviar audios, textos o enlaces a Eva; Eva coordina a su equipo, produce la propuesta con preview y solicita confirmación antes de gastar créditos en Higgsfield o despachar a Postiz.
+
+---
+
+## 🔱 LA TRÍADA DE POTENCIA: POSTIZ + GOOGLE PUBLISHER + HIGGSFIELD AI
+ECA combina tres superpoderes en una sola tubería:
+1. **Higgsfield AI (Video Cinematográfico & Movimiento):**
+   - Control de cámara 3D, movimiento hiperrealista y generación de clips a partir de los guiones de Vera y prompts de Kite.
+2. **Google Publisher / Workspace MCP:**
+   - Sincronización de guiones en Google Docs, almacenamiento de masters en Google Drive y programación de lanzamientos en Google Calendar.
+3. **Postiz (Contenedor Self-Hosted en Dokploy):**
+   - El "Buffer propio" de la agencia. Publica de forma nativa en **TikTok, Instagram, Facebook, YouTube y LinkedIn** sin depender de servicios de suscripción costosos.
+
+---
+
 ## 📐 ESPECIFICACIÓN DE PANELES PARA STITCH (DISEÑO GENERATIVO UI)
 
 Debes generar o iterar mediante Stitch / Generative UI los siguientes 6 módulos centrales:
@@ -87,3 +111,4 @@ Agencia_Creativa_ECA/
 1. **API Oficial Primero, Render Asíncrono:** La generación pesada de video se delega a APIs cloud; el render local con FFmpeg se gestiona mediante colas para no sobrecargar el VPS de Dokploy.
 2. **Inferencia por Defecto:** Utilizar el endpoint de inferencia de ALIHANED (`https://alirouter.alihaned.com` / LiteLLM) o el canal de ChatGPT/Codex para las tareas de copywriting y guionización.
 3. **Persistencia Dokploy:** Todo volumen persistente debe mapearse de forma limpia a `/opt/data/eca`.
+
