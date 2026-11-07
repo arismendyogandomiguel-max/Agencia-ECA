@@ -157,6 +157,18 @@ Agencia_Creativa_ECA/
 
 ---
 
+## 🤖 PROTOCOLO A2A (AGENT-TO-AGENT): ECA COMO SUBAGENTE DE LOS CONSTRUCTORES
+Además de su interfaz visual para humanos, ECA debe exponer un **MCP Server nativo (`eca-mcp-server`)** para comunicarse con el resto del ecosistema ALIHANED:
+- **Agentes Clientes Autorizados:** 🧠 Antigravity (IDE), 🛠️ Claude (IDE / Claude Code), ⚙️ Tony (Laboratorio), ⚡ Astra (Desktop).
+- **Herramientas MCP Expuestas por ECA:**
+  1. `eca_crear_campaña(workspace, tema, formato, redes)`: Inicia una misión completa de contenido.
+  2. `eca_redactar_guion(workspace, hook_type, duracion_seg)`: Llama a Vera para generar escaletas.
+  3. `eca_render_reel(workspace, template_id, higgsfield_prompt)`: Llama a Kite para generar visuales.
+  4. `eca_programar_postiz(workspace, asset_url, red, fecha_iso)`: Despacha la publicación.
+- **Resultado:** Cualquier agente constructor en el IDE puede delegar tareas de marketing o comunicación a **Eva** sin que el usuario tenga que salir de su flujo de desarrollo.
+
+---
+
 ## ⚡ REGLAS DE ORO PARA CLAUDE
 1. **Arquitectura de Cero Carga Local (Offloading vía MCP & n8n):**
    - El servidor VPS en Dokploy NO realiza trabajo pesado de renderizado, difusión de video o entrenamiento local.
