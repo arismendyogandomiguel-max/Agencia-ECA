@@ -174,11 +174,14 @@ Agencia_Creativa_ECA/
 
 ---
 
-## 🤖 Agentes de Eva (Perfiles Hermes)
+## 🤖 Agentes de Eva (Ecosistema Alihas & Hermes)
+
+> **Filosofía Alihas:** Se escribe con **H** porque el **Humano** es el centro absoluto (`Ali-H-as`).
+> Alihas es el asistente personal agéntico universal para la diáspora basado en Hermes; Eva es su personificación como Directora Creativa de ECA.
 
 | Perfil | Nombre Cadence | Rol |
 |---|---|---|
-| `orchestrator` | **Eva** | Directora Creativa. Coordina la cuadrilla. |
+| `orchestrator` | **Eva (Alihas)** | Directora Creativa. Coordina la cuadrilla con ruteo adaptativo. |
 | `scout` | **Atlas** | Scout de ideas, tendencias y curaduría. |
 | `scribe` | **Vera** | Copywriter, guionista y estructuradora de hooks. |
 | `dev` | **Kite** | Director visual, prompter de video, templates 9:16. |
