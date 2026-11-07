@@ -42,7 +42,9 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
+# Allow apps/web/lib for Next.js
+!apps/web/lib/
+!apps/web/lib/**
 lib64/
 parts/
 sdist/
