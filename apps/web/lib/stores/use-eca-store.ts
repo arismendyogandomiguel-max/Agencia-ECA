@@ -402,7 +402,7 @@ export const useECAStore = create<ECAState>()(
         set((state) => ({ pendingApprovalsCount: Math.max(0, state.pendingApprovalsCount - 1) }))
     }),
     {
-      name: 'eca-alihaned-storage',
+      name: 'eca-alihaned-storage-v3',
       storage: createJSONStorage(() => localStorage)
     }
   )
