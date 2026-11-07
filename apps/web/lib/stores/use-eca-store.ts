@@ -26,14 +26,25 @@ export interface ActiveSlide {
 }
 
 export type UIWidgetMode = 'minimized_icon' | 'floating_hud' | 'docked_drawer' | 'popped_out';
+export type UIRoutingMode = 'auto_adaptive' | 'manual';
 
 export interface UserEngineSettings {
   isAgenticUIEnabled: boolean;
+  routingMode: UIRoutingMode; // Manual vs Automático Adaptativo
   provider: 'hermes_pilot' | 'openai' | 'anthropic' | 'openrouter';
   voiceOutputEnabled: boolean;
   speechDictationEnabled: boolean;
   customApiKey?: string;
   hermesEndpoint: string;
+}
+
+export interface EvaMessage {
+  id: string;
+  sender: 'user' | 'eva' | 'atlas' | 'vera' | 'kite' | 'orin';
+  text: string;
+  mediaType?: 'text' | 'image' | 'video' | 'artifact';
+  mediaUrl?: string;
+  timestamp: string;
 }
 
 interface ECAState {
@@ -44,8 +55,13 @@ interface ECAState {
 
   // Agentic UI Kit State (Alihaned Kit)
   uiWidgetMode: UIWidgetMode;
+  routingMode: UIRoutingMode;
   setUIWidgetMode: (mode: UIWidgetMode) => void;
+  setRoutingMode: (mode: UIRoutingMode) => void;
   cycleUIWidgetMode: () => void;
+
+  // Dispatch response from Eva with smart adaptive routing
+  dispatchAgentResponse: (msg: EvaMessage) => void;
 
   // Engine Settings (BYOK & Hermes Pilot)
   engineSettings: UserEngineSettings;
@@ -73,7 +89,7 @@ interface ECAState {
 
 export const useECAStore = create<ECAState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       workspaces: [
         { id: 'ws-alihaned-master', name: 'ALIHANED Corp', slug: 'alihaned', role: 'owner' }
       ],
@@ -82,7 +98,9 @@ export const useECAStore = create<ECAState>()(
 
       // Agentic UI Kit
       uiWidgetMode: 'minimized_icon',
+      routingMode: 'auto_adaptive', // Default: Eva adapts to response type
       setUIWidgetMode: (mode) => set({ uiWidgetMode: mode }),
+      setRoutingMode: (mode) => set({ routingMode: mode }),
       cycleUIWidgetMode: () =>
         set((state) => {
           const modes: UIWidgetMode[] = ['minimized_icon', 'floating_hud', 'docked_drawer', 'popped_out'];
@@ -91,9 +109,28 @@ export const useECAStore = create<ECAState>()(
           return { uiWidgetMode: modes[nextIndex] };
         }),
 
+      // Smart Adaptive Dispatcher
+      dispatchAgentResponse: (msg: EvaMessage) => {
+        const { routingMode, uiWidgetMode } = get();
+        if (routingMode === 'auto_adaptive') {
+          if (msg.mediaType === 'artifact') {
+            set({ uiWidgetMode: 'popped_out' });
+          } else if (msg.mediaType === 'image' || msg.mediaType === 'video') {
+            set({ uiWidgetMode: 'docked_drawer' });
+          } else {
+            // Quick text: show floating HUD briefly
+            set({ uiWidgetMode: 'floating_hud' });
+          }
+        } else {
+          // Manual mode: never change uiWidgetMode autonomously
+          // If response exceeds current mode, Eva remains in current mode and prompts user
+        }
+      },
+
       // User Engine Configuration (BYOK / Hermes)
       engineSettings: {
         isAgenticUIEnabled: true,
+        routingMode: 'auto_adaptive',
         provider: 'hermes_pilot',
         voiceOutputEnabled: true,
         speechDictationEnabled: true,
@@ -147,7 +184,8 @@ export const useECAStore = create<ECAState>()(
         activeWorkspaceId: state.activeWorkspaceId,
         selectedTemplateId: state.selectedTemplateId,
         engineSettings: state.engineSettings,
-        uiWidgetMode: state.uiWidgetMode
+        uiWidgetMode: state.uiWidgetMode,
+        routingMode: state.routingMode
       })
     }
   )
