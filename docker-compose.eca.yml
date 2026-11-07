@@ -1,0 +1,93 @@
+version: '3.8'
+
+services:
+  agente-eca:
+    image: nousresearch/hermes-agent:v2026.6.19
+    container_name: mayordomia-eca-agent
+    restart: unless-stopped
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        export PATH="/opt/hermes/.venv/bin:/usr/local/bin:$PATH"
+        export ECA_AGENT_NAME="Alihas ECA"
+        export ECA_PORT=8840
+        export HERMES_HOME=/opt/data
+        echo "🚀 Iniciando Alihas ECA (Hermes Creative Engine)..."
+        # Iniciar agente ECA con escucha de Telegram y servidor API inter-agente
+        exec /opt/hermes/.venv/bin/python3 -m hermes_agent --port 8840 --topic-routing
+    environment:
+      # --- IDENTIDAD ALIHAS & ROL ---
+      - AGENT_NAME=Alihas ECA
+      - AGENT_FAMILY=Alihas
+      - AGENT_ROLE=Creative Director & Media Orchestrator
+      - PERSONA=Eva
+      
+      # --- SERVIDOR Y PUERTOS ---
+      - ECA_PORT=8840
+      - ECA_BIND=0.0.0.0
+      
+      # --- TELEGRAM SQUAD TOPICS (ECA) ---
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_ALLOWED_USERS=${TELEGRAM_ALLOWED_USERS}
+      - TELEGRAM_ECA_GROUP_ID=${TELEGRAM_ECA_GROUP_ID}
+      
+      # --- WIKI & AGENTE BIBLIOTECARIO (Brand Brain Sync) ---
+      - WIKI_TOKEN=${WIKI_TOKEN}
+      - WIKI_URL=http://infraestructura-wiki-zkms8t:80
+      - WIKI_PERSISTENCE_PATH=/opt/data/wiki_cache
+      
+      # --- INFERENCIA & ALIROUTER (AR2-NET) ---
+      - ALIROUTER_BASE_URL=http://infraestructura-litellm-cs8dux-litellm-1:4000
+      - ALIROUTER_API_KEY=${ALIROUTER_API_KEY}
+      
+      # --- PERSISTENCIA Y VOLÚMENES ---
+      - HERMES_HOME=/opt/data
+      - HERMES_VOLUME=mayordomia-hermes-pqn2fv_hermes_data
+
+    volumes:
+      - hermes_data:/opt/data
+      - eca_cache:/opt/eca/cache
+
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: "1.5"
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=dokploy-network"
+      - "traefik.http.routers.eca-agent.rule=Host(`eca-api.alihaned.com`)"
+      - "traefik.http.routers.eca-agent.entrypoints=websecure"
+      - "traefik.http.routers.eca-agent.tls.certresolver=letsencrypt"
+      - "traefik.http.services.eca-agent.loadbalancer.server.port=8840"
+
+    networks:
+      - ecanet          # Red aislada de renderizado y producción pesada de contenido
+      - dokploy-network # Ingress público Traefik para eca-api.alihaned.com
+      - agent-net       # Bus privado de comunicación inter-agente (Tony <-> ECA <-> Alfred)
+      - data-wiki-net   # Acceso exclusivo a Wiki Central (wiki.alihaned.com) y Living Codex
+      - ar2-net         # Canal de inferencia dedicado con ALiRouter (LiteLLM)
+
+volumes:
+  hermes_data:
+    external: true
+    name: mayordomia-hermes-pqn2fv_hermes_data
+  eca_cache:
+    name: mayordomia-eca-cache
+
+networks:
+  # 1. Red aislada dedicada para ECA (Cero ruido en la red principal)
+  ecanet:
+    driver: bridge
+    name: ecanet
+
+  # 2. Redes existentes de la Malla Corporativa ALIHANED
+  dokploy-network:
+    external: true
+  agent-net:
+    external: true
+  data-wiki-net:
+    external: true
+  ar2-net:
+    external: true

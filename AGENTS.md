@@ -22,11 +22,11 @@ soporte SRE / DevOps.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  Dokploy (dokploy-network + agent-net)                          │
+│  Dokploy (dokploy-network + agent-net + ecanet)                 │
 │  ┌──────────────┐  ┌──────────────┐  ┌────────────┐            │
 │  │  eca-web      │  │  eca-api      │  │ hermes-eva │            │
 │  │  Next.js 15   │  │  FastAPI      │  │ (Hermes)   │            │
-│  │  Puerto 3000  │  │  Puerto 8000  │  │ Telegram   │            │
+│  │  (Vercel Prod)│  │  Puerto 8840  │  │ Telegram   │            │
 │  └──────┬───────┘  └──────┬───────┘  └─────┬──────┘            │
 │         │                  │                │                    │
 │  ┌──────┴──────────────────┴────────────────┴──────┐            │
@@ -54,139 +54,58 @@ soporte SRE / DevOps.
 - **Chat IA:** AI SDK (`ai` npm) con streaming SSE
 - **Canvas:** Fabric.js para previsualizador 1080×1920
 
-### Backend (`apps/api/`)
-- **Framework:** FastAPI (Python 3.12+, async)
-- **ORM:** SQLModel (SQLAlchemy + Pydantic v2)
-- **Base de Datos:** Supabase (PostgreSQL 16 gestionado, con RLS)
-- **Cola:** Celery + Redis
-- **Render:** Playwright (HTML→PNG) + FFmpeg (video)
-- **Storage Temporal:** MinIO (S3-compatible para assets de render)
-
-### Agentes (`apps/api/agents/` + `docker/Dockerfile.hermes`)
-- **Runtime:** Hermes (contenedor `hermes-eva`)
-- **Perfiles:** Eva (directora), Atlas (scout), Vera (scribe), Kite (dev), Orin (reach), Bibliotecario-Eva
-- **Inferencia:** ALiRouter/LiteLLM (`https://alirouter.alihaned.com`)
-- **MCP Server:** `packages/eca-mcp-server/` — herramientas A2A
+### Backend & Agente (`docker-compose.eca.yml`)
+- **Runtime:** Hermes en Docker gestionado por Dokploy en Proyecto Mayordomía
+- **Bot de Telegram Verificado:** `@Agent_Eca_Bot` (ID: `9108245828`)
+- **Malla de Redes:** `ecanet` (aislamiento), `dokploy-network`, `agent-net`, `data-wiki-net`, `ar2-net`
 
 ---
 
-## 📐 Convenciones de Código
+## 🎀 Simbología e Identidad de Marca Corporativa
 
-### TypeScript (Frontend)
-- `strict: true` en tsconfig.json — sin `any` excepto libs externas sin tipos
-- Componentes: archivos `.tsx` con nombre PascalCase, export default
-- Hooks: `use-*.ts` en `lib/hooks/`
-- Stores Zustand: `*-store.ts` en `lib/stores/`
-- Paths alias: `@/` = `apps/web/`
-
-### Python (Backend)
-- Tipado estricto con `mypy --strict`
-- Docstrings Google-style en funciones públicas
-- Modelos SQLModel en `app/models/` — un archivo por tabla
-- Routers FastAPI en `app/routers/` — un archivo por recurso
-- Services (lógica de negocio) en `app/services/`
-- Workers Celery en `app/workers/` — una función por tarea
-
-### Migraciones
-- **Supabase Migrations** via `supabase db diff` + `supabase db push`
-- Todas las migraciones versionadas en `supabase/migrations/`
-- **RLS obligatorio:** Toda tabla con datos de usuario DEBE tener Row Level Security activado con policy de `workspace_id`
-
-### Git
-- Ramas: `main` (producción), `dev` (desarrollo), `feature/*`, `fix/*`
-- Commits: Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`, `chore:`)
-- PR obligatorio para merge a `main`
+- **ALIHANED:** Símbolo del **infinito (∞)** con degradado continuo del espectro de la luz visible (RGB / espectro completo).
+- **Alihas (con "H" intermedia - El Humano en el Centro):** El icono universal del agente es el **Corbatín (Bowtie / ⧓)**, representando el alter ego dinámico y extensible del usuario.
+- **Taxonomía de la Familia Alihas:**
+  - **Alihas Tony (Tony Star):** Agente Científico (I+D en `laboratorio.alihaned.com`).
+  - **Alihas ECA:** Agente Creativo (Marca personal, contenido, reels 9:16, videos 16:9). Bot: `@Agent_Eca_Bot`.
+  - **Alihas Alfred:** Asistente de Vida Personal / Ecosistema Draimer (Subagentes: Storkas en Finanzas, Winastest en Relaciones, DPV en Bienestar).
+  - **Amo de Llaves:** Agente Empresarial / Operaciones.
 
 ---
 
-## 📁 Estructura del Monorepo
+## 🎛️ Ciclo Metamórfico del Corbatín Alihas (3 Estados por Clic)
 
-```
-Agencia_Creativa_ECA/
-├── apps/
-│   ├── web/                        # Next.js 15 App Router
-│   │   ├── app/                    # Rutas
-│   │   │   ├── (dashboard)/        # Layout compartido del dashboard
-│   │   │   │   ├── page.tsx        # Command Center
-│   │   │   │   ├── workspaces/     # Gestión de workspaces
-│   │   │   │   ├── brand-kit/      # Brand Kit & UGC
-│   │   │   │   ├── studio/
-│   │   │   │   │   ├── reels/      # Reels & Shorts 9:16
-│   │   │   │   │   └── video/      # Long Video Studio
-│   │   │   │   ├── calendar/       # Social Calendar & Postiz
-│   │   │   │   └── connectors/     # Matrix de MCPs
-│   │   │   ├── api/                # API Routes (proxy a FastAPI)
-│   │   │   └── layout.tsx
-│   │   ├── components/
-│   │   │   ├── ui/                 # shadcn/ui components
-│   │   │   ├── dashboard/          # Componentes de dashboard
-│   │   │   ├── studio/             # Componentes del creative studio
-│   │   │   ├── chat/               # Chat de Eva (AI SDK)
-│   │   │   └── shared/             # Compartidos
-│   │   ├── lib/
-│   │   │   ├── api/                # Clients para FastAPI
-│   │   │   ├── hooks/              # Custom hooks
-│   │   │   ├── stores/             # Zustand stores
-│   │   │   ├── supabase/           # Supabase client (server + browser)
-│   │   │   └── utils/
-│   │   └── public/
-│   └── api/                        # FastAPI Backend
-│       ├── app/
-│       │   ├── main.py             # FastAPI app factory
-│       │   ├── config.py           # Settings from env
-│       │   ├── deps.py             # Dependencies (DB session, auth)
-│       │   ├── models/             # SQLModel schemas
-│       │   ├── routers/            # API endpoints
-│       │   ├── services/           # Business logic
-│       │   ├── workers/            # Celery tasks
-│       │   └── agents/             # Eva agent profiles & orchestration
-│       ├── alembic/                # DB migrations (if not using Supabase CLI)
-│       ├── tests/
-│       └── pyproject.toml
-├── packages/
-│   ├── templates/                  # Motor de templates HTML→PNG
-│   │   ├── engine/                 # Renderer con Playwright
-│   │   └── registry/               # Templates del reels-pack.json
-│   ├── shared-types/               # TypeScript types compartidos
-│   └── eca-mcp-server/             # MCP Server (A2A)
-├── supabase/
-│   ├── migrations/                 # SQL migrations versionadas
-│   ├── seed.sql                    # Datos semilla para desarrollo
-│   └── config.toml                 # Config del proyecto Supabase
-├── docker/
-│   ├── docker-compose.yml          # Stack completo para Dokploy
-│   ├── docker-compose.dev.yml      # Override para dev local
-│   ├── Dockerfile.web
-│   ├── Dockerfile.api
-│   └── Dockerfile.hermes
-├── seed_references/                # Semillas originales (READ-ONLY, no modificar)
-│   ├── cadence-prompts.md
-│   └── reels-pack.json
-├── .env.example
-├── .gitignore
-├── AGENTS.md                       # Este archivo
-├── README.md
-├── HANDOFF_CLAUDE_STITCH.md
-├── turbo.json
-├── pnpm-workspace.yaml
-└── package.json
-```
+1. **Estado 0 (Apagado / Opaco):** Clic -> El corbatín se torna gris/opaco. La IA queda 100% desconectada y la interfaz pasa a control puramente manual.
+2. **Estado 1 (Encendido / Dinámico):** Clic -> Se activa el pulso de color y resplandor. Agente en standby / modo automático adaptativo según contexto.
+3. **Estado 2 (HUD Flotante Móvil):** Clic adicional -> Despliega una mini-barra flotante compacta (dimensiones de barra de búsqueda estilo iPhone/iOS), libremente arrastrable por el canvas:
+   - **Micrófono:** Toggle de Modo Voz ON/OFF.
+   - **Selector de Subagente / Adjunto:** Selección directa de Eva, Atlas, Vera, Kite, Orin o Bibliotecario.
+   - Cada subagente de ECA está mapeado a un tópico individual dentro de un grupo dedicado en Telegram (`@Agent_Eca_Bot`).
 
 ---
 
 ## 🤖 Agentes de Eva (Ecosistema Alihas & Hermes)
 
-> **Filosofía Alihas:** Se escribe con **H** porque el **Humano** es el centro absoluto (`Ali-H-as`).
-> Alihas es el asistente personal agéntico universal para la diáspora basado en Hermes; Eva es su personificación como Directora Creativa de ECA.
+| Perfil | Nombre Cadence | Rol | Tópico Telegram |
+|---|---|---|---|
+| `orchestrator` | **Eva (Alihas)** | Directora Creativa. Coordinación y ruteo adaptativo. | Tópico #1 General |
+| `scout` | **Atlas** | Scout de ideas, tendencias y curaduría. | Tópico #2 Scouting |
+| `scribe` | **Vera** | Copywriter, guionista y estructuradora de hooks. | Tópico #3 Copy & Scripts |
+| `dev` | **Kite** | Director visual, prompter de video, templates 9:16. | Tópico #4 Visuals & Video |
+| `reach` | **Orin** | Estratega de publicación, despacho en Postiz. | Tópico #5 Calendario |
+| `librarian` | **Bibliotecario-Eva** | Custodio del conocimiento, sync con Wiki Central. | Tópico #6 Wiki Brain |
 
-| Perfil | Nombre Cadence | Rol |
-|---|---|---|
-| `orchestrator` | **Eva (Alihas)** | Directora Creativa. Coordina la cuadrilla con ruteo adaptativo. |
-| `scout` | **Atlas** | Scout de ideas, tendencias y curaduría. |
-| `scribe` | **Vera** | Copywriter, guionista y estructuradora de hooks. |
-| `dev` | **Kite** | Director visual, prompter de video, templates 9:16. |
-| `reach` | **Orin** | Estratega de publicación, despacho en Postiz. |
-| `librarian` | **Bibliotecario-Eva** | Custodio del conocimiento, sync con Wiki. |
+---
+
+## 🌐 Malla de 5 Redes en Dokploy (Proyecto Mayordomía)
+
+- **Servicio en Dokploy:** `mayordomia-eca-agent` (`docker-compose.eca.yml`).
+- **Malla de 5 Redes:**
+  1. `ecanet`: Red bridge aislada para renderizado y producción pesada de medios, eliminando el ruido y congestión en las redes corporativas.
+  2. `dokploy-network`: Ingress público Traefik y SSL para `eca-api.alihaned.com`.
+  3. `agent-net`: Bus inter-agente (A2A) seguro para coordinación con Tony y Alfred.
+  4. `data-wiki-net`: Acceso exclusivo a Wiki Central (`wiki.alihaned.com`) vía Agente Bibliotecario (`WIKI_TOKEN`).
+  5. `ar2-net`: Inferencia directa local con ALiRouter (LiteLLM puerto 4000).
 
 ---
 
@@ -196,7 +115,7 @@ Agencia_Creativa_ECA/
 2. **NUNCA hardcodear credenciales** — Todo secreto va en `.env` o Supabase Vault.
 3. **RLS siempre activo** — Toda tabla con datos de usuario requiere política de `workspace_id`.
 4. **Contenedor liviano** — `hermes-eva` y `eca-web` deben mantenerse < 500MB RAM cada uno.
-5. **Render offloaded** — El trabajo pesado (FFmpeg, Playwright) corre en workers Celery, NUNCA en el proceso principal de FastAPI.
+5. **Render offloaded** — El trabajo pesado (FFmpeg, Playwright) corre en workers Celery o en la red aislada `ecanet`, NUNCA en el proceso principal de FastAPI.
 6. **Clean-Room** — Código derivado de `cadence-prompts.md` debe ser reescrito y adaptado, nunca copiado verbatim (licencia restrictiva del autor original).
 7. **Conventional Commits** — Todo commit sigue `feat:`, `fix:`, `docs:`, `refactor:`, `chore:`.
 8. **Tests antes de merge** — Mínimo 80% cobertura en routers, validación de tipos en modelos.
@@ -210,4 +129,4 @@ Agencia_Creativa_ECA/
 
 ---
 
-*Última actualización: 2026-11-06 | Autor: 🧠 Antigravity (Gemini)*
+*Última actualización: 2026-11-07 | Autor: 🧠 Antigravity (Gemini)*
