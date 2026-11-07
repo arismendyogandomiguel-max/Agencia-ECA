@@ -161,7 +161,7 @@ export const useECAStore = create<ECAState>()(
   persist(
     (set, get) => ({
       workspaces: [
-        { id: 'ws-alihaned-master', name: 'ALIHANED Corp', slug: 'alihaned', role: 'owner' }
+        { id: 'ws-alihaned-master', name: 'Estudio Creativo Agéntico', slug: 'eca-studio', role: 'owner' }
       ],
       activeWorkspaceId: 'ws-alihaned-master',
       setActiveWorkspace: (id) => set({ activeWorkspaceId: id }),

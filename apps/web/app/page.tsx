@@ -70,18 +70,16 @@ export default function CommandCenterPage() {
       {/* ─── SIDEBAR ─── */}
       <aside className="w-64 min-w-[260px] bg-[#18181b] border-r border-[#27272a] flex flex-col">
         {/* Brand Logo */}
-        <div className="p-5 border-b border-[#27272a] flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <AlihasTuxedoAvatar size={38} title="Alihas — Alter Ego Soberano" />
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-600 via-pink-500 to-amber-400 flex items-center justify-center font-extrabold text-white text-xs shadow-md shadow-violet-900/20" title="Corporativo ALIHANED (Infinito)">
-              ∞
-            </div>
-          </div>
-          <div>
-            <h1 className="font-bold text-sm tracking-tight flex items-center gap-1.5">
-              ECA Studio <span className="text-[10px] text-violet-400 font-mono font-normal">v2.4</span>
+        <div className="p-5 border-b border-[#27272a] flex items-center gap-3.5">
+          <AlihasTuxedoAvatar size={44} title="Alihas — Alter Ego Soberano" />
+          <div className="min-w-0">
+            <h1 className="font-bold text-[13px] text-white tracking-tight leading-tight">
+              Estudio Creativo Agéntico
             </h1>
-            <p className="text-[11px] text-[#a1a1aa]">Alihas · Ecosistema ALIHANED</p>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className="text-[9px] text-[#71717a] font-mono tracking-wider">Alihas Sovereign Hub</span>
+              <span className="text-[8px] text-[#52525b] font-mono">· alihaned</span>
+            </div>
           </div>
         </div>
 
@@ -95,7 +93,7 @@ export default function CommandCenterPage() {
               <div className="w-6 h-6 rounded bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white">
                 {activeWorkspace?.name?.charAt(0) || 'A'}
               </div>
-              <span className="text-xs font-semibold">{activeWorkspace?.name || 'ALIHANED Corp'}</span>
+              <span className="text-xs font-semibold">{activeWorkspace?.name || 'Estudio Creativo Agéntico'}</span>
             </div>
           </button>
         </div>
@@ -183,7 +181,7 @@ export default function CommandCenterPage() {
         <header className="h-16 border-b border-[#27272a] bg-[#18181b]/50 backdrop-blur-md px-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="text-xs uppercase tracking-wider text-[#a1a1aa] font-semibold">
-              ECA // {activeTab.replace('_', ' ').toUpperCase()}
+              Estudio Creativo Agéntico // {activeTab.replace('_', ' ').toUpperCase()}
             </span>
             <span className="px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/20 text-[10px] font-mono">
               @Agent_Eca_Bot

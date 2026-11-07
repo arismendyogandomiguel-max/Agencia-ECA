@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'ECA Studio — Estudio Creativo Agéntico',
-  description: 'Plataforma multi-marca para generación, edición y publicación de contenido omnicanal con IA.',
+  title: 'Estudio Creativo Agéntico — Alihas Sovereign Hub',
+  description: 'Estudio Creativo Agéntico impulsado por Alihas: generación, edición y monetización de contenido omnicanal.',
 };
 
 export default function RootLayout({
