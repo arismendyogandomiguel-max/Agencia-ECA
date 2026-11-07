@@ -14,16 +14,46 @@ Utilizarás las herramientas de diseño generativo de Google (**Stitch / Generat
 
 ---
 
-## 👑 GOBERNANZA AGÉNTICA: "EVA" (HERMES DEDICADO EN TELEGRAM)
-ECA replica la arquitectura probada del **Laboratorio Tony**, pero adaptada como un **Laboratorio de Contenido para Redes Sociales**:
-- **Agente Principal:** **Eva** (Directora Creativa Agéntica).
-- **Runtime:** Contenedor Docker dedicado corriendo **Hermes** en `dokploy-network` con su propio bot token de Telegram.
-- **Cuadrilla de Subagentes de Eva:**
-  1. `Atlas` (profile: `scout`): Rastreador de tendencias, ideas virales y ángulos de nicho.
-  2. `Vera` (profile: `scribe`): Redacción de guiones, hooks de 3s, copys y hashtags.
-  3. `Kite` (profile: `dev`): Dirección visual, prompter de Higgsfield AI y maquetador de templates 9:16.
-  4. `Orin` (profile: `reach`): Programador y despachador en Postiz + analítica social.
-- **Interacción por Telegram:** El usuario puede enviar audios, textos o enlaces a Eva; Eva coordina a su equipo, produce la propuesta con preview y solicita confirmación antes de gastar créditos en Higgsfield o despachar a Postiz.
+## 👑 SOBERANÍA AGÉNTICA: CONTENEDOR INDEPENDIENTE PARA EVA
+ECA opera bajo el principio de **Soberanía Funcional**:
+- **Desacoplamiento Editorial Total:** Eva **NO depende del Laboratorio de Tony** para crear contenido, guiones o publicaciones.
+- **Doble Contenedor Base en Dokploy:**
+  1. `hermes-eva`: Contenedor Docker dedicado para el runtime de Hermes, perfiles de subagentes y plantillas internas de misión. Conectado a su propio bot de Telegram.
+  2. `eca-web`: Contenedor Docker para el Dashboard Next.js / API.
+- **Rol de Tony (Laboratorio):** Tony solo se comunica vía red interna (`agent-net` / `dokploy-network`) para labores de **soporte técnico, mantenimiento de infraestructura, DevOps y diagnóstico**, exactamente como un SRE.
+- **Agente Bibliotecario Propio (`agent-bibliotecario-eva`):** Responsable de persistir los aprendizajes, el catálogo de prompts y plantillas de misión en la **Wiki Central (`wiki.alihaned.com`)** mediante la red `data-wiki-net`.
+- **Plantillas Internas de Misión (Runbooks de Eva):**
+  - Misión A: Lanzamiento de Producto (UGC + Hook 3s + Reel 9:16 + Carrusel).
+  - Misión B: Campaña Educativa Semanal (Artículos + Infografías).
+  - Misión C: Video Cinematográfico (Prompts de cámara para Higgsfield AI + voz).
+  - Misión D: Re-purposing Omnicanal (Video largo troceado en 5 Shorts para TikTok/IG/LinkedIn).
+
+---
+
+## 🔱 LA TRÍADA DE POTENCIA: POSTIZ + GOOGLE PUBLISHER + HIGGSFIELD AI
+ECA combina tres superpoderes en una sola tubería:
+1. **Higgsfield AI (Video Cinematográfico & Movimiento):**
+   - Control de cámara 3D, movimiento hiperrealista y generación de clips a partir de los guiones de Vera y prompts de Kite.
+2. **Google Publisher / Workspace MCP:**
+   - Sincronización de guiones en Google Docs, almacenamiento de masters en Google Drive y programación de lanzamientos en Google Calendar.
+3. **Postiz (Contenedor Self-Hosted en Dokploy):**
+   - El "Buffer propio" de la agencia. Publica de forma nativa en **TikTok, Instagram, Facebook, YouTube y LinkedIn** sin depender de servicios de suscripción costosos.
+
+---
+
+## 👑 SOBERANÍA AGÉNTICA: CONTENEDOR INDEPENDIENTE PARA EVA
+ECA opera bajo el principio de **Soberanía Funcional**:
+- **Desacoplamiento Editorial Total:** Eva **NO depende del Laboratorio de Tony** para crear contenido, guiones o publicaciones.
+- **Doble Contenedor Base en Dokploy:**
+  1. `hermes-eva`: Contenedor Docker dedicado para el runtime de Hermes, perfiles de subagentes y plantillas internas de misión. Conectado a su propio bot de Telegram.
+  2. `eca-web`: Contenedor Docker para el Dashboard Next.js / API.
+- **Rol de Tony (Laboratorio):** Tony solo se comunica vía red interna (`agent-net` / `dokploy-network`) para labores de **soporte técnico, mantenimiento de infraestructura, DevOps y diagnóstico**, exactamente como un SRE.
+- **Agente Bibliotecario Propio (`agent-bibliotecario-eva`):** Responsable de persistir los aprendizajes, el catálogo de prompts y plantillas de misión en la **Wiki Central (`wiki.alihaned.com`)** mediante la red `data-wiki-net`.
+- **Plantillas Internas de Misión (Runbooks de Eva):**
+  - Misión A: Lanzamiento de Producto (UGC + Hook 3s + Reel 9:16 + Carrusel).
+  - Misión B: Campaña Educativa Semanal (Artículos + Infografías).
+  - Misión C: Video Cinematográfico (Prompts de cámara para Higgsfield AI + voz).
+  - Misión D: Re-purposing Omnicanal (Video largo troceado en 5 Shorts para TikTok/IG/LinkedIn).
 
 ---
 
