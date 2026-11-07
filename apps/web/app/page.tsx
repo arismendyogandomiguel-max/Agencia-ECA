@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { useECAStore, UGCCampaign, CreatorSubscription } from '@/lib/stores/use-eca-store';
+import { AliFloatingHUD } from '@/components/ali-floating-hud';
+import { AlihasTuxedoAvatar } from '@/components/ali-bowtie-avatar';
 import { 
   LayoutDashboard, 
   Sparkles, 
@@ -69,8 +71,11 @@ export default function CommandCenterPage() {
       <aside className="w-64 min-w-[260px] bg-[#18181b] border-r border-[#27272a] flex flex-col">
         {/* Brand Logo */}
         <div className="p-5 border-b border-[#27272a] flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 via-pink-500 to-amber-400 flex items-center justify-center font-extrabold text-white text-base shadow-lg shadow-violet-900/20">
-            ∞
+          <div className="flex items-center gap-2">
+            <AlihasTuxedoAvatar size={38} title="Alihas — Alter Ego Soberano" />
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-600 via-pink-500 to-amber-400 flex items-center justify-center font-extrabold text-white text-xs shadow-md shadow-violet-900/20" title="Corporativo ALIHANED (Infinito)">
+              ∞
+            </div>
           </div>
           <div>
             <h1 className="font-bold text-sm tracking-tight flex items-center gap-1.5">
@@ -564,38 +569,8 @@ export default function CommandCenterPage() {
 
         </div>
 
-        {/* ─── FLOATING METAMORPHIC ALIHAS BOWTIE BAR ─── */}
-        <div className="p-4 border-t border-[#27272a] bg-[#121217]/80 backdrop-blur-md flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={cycleUIWidgetMode}
-              title="Alihas Metamorphic Switch (Clic: Opaco / Dinámico / HUD)"
-              className="w-8 h-8 rounded-full bg-violet-600/20 border border-violet-500/40 hover:border-violet-400 flex items-center justify-center text-violet-300 text-xs shadow-lg shadow-violet-900/30 transition-all hover:scale-105"
-            >
-              ⧓
-            </button>
-            <div className="text-xs">
-              <span className="font-semibold text-white">Alihas Eva Co-Director</span>
-              <span className="text-[10px] text-[#a1a1aa] ml-2">Modo: {uiWidgetMode}</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 max-w-lg flex-1 mx-6">
-            <input 
-              type="text" 
-              placeholder="Habla con Eva o instruye a la cuadrilla... (Espacio para dictar)"
-              className="w-full bg-[#09090b] border border-[#27272a] rounded-full px-4 py-1.5 text-xs text-white focus:outline-none focus:border-violet-500"
-            />
-            <button className="w-7 h-7 rounded-full bg-violet-600 hover:bg-violet-500 flex items-center justify-center text-white transition-colors">
-              <Send className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          <div className="flex items-center gap-2 text-[10px] font-mono text-[#a1a1aa]">
-            <span>Telegram: @Agent_Eca_Bot</span>
-          </div>
-        </div>
-
+        {/* ─── FLOATING METAMORPHIC ALIHAS BOWTIE HUD (MODO TEXTO / MODO VOZ) ─── */}
+        <AliFloatingHUD />
       </main>
     </div>
   );
