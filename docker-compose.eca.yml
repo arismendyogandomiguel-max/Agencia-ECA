@@ -13,7 +13,6 @@ services:
         export ECA_PORT=8840
         export HERMES_HOME=/opt/data
         echo "🚀 Iniciando Alihas ECA (Hermes Creative Engine)..."
-        # Iniciar agente ECA con escucha de Telegram y servidor API inter-agente
         exec /opt/hermes/.venv/bin/python3 -m hermes_agent --port 8840 --topic-routing
     environment:
       # --- IDENTIDAD ALIHAS & ROL ---
@@ -22,7 +21,7 @@ services:
       - AGENT_ROLE=Creative Director & Media Orchestrator
       - PERSONA=Eva
       
-      # --- SERVIDOR Y PUERTOS ---
+      # --- PUERTOS Y BIND INTERNO ---
       - ECA_PORT=8840
       - ECA_BIND=0.0.0.0
       
@@ -54,17 +53,8 @@ services:
           memory: 2G
           cpus: "1.5"
 
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=dokploy-network"
-      - "traefik.http.routers.eca-agent.rule=Host(`eca-api.alihaned.com`)"
-      - "traefik.http.routers.eca-agent.entrypoints=websecure"
-      - "traefik.http.routers.eca-agent.tls.certresolver=letsencrypt"
-      - "traefik.http.services.eca-agent.loadbalancer.server.port=8840"
-
     networks:
       - ecanet          # Red aislada de renderizado y producción pesada de contenido
-      - dokploy-network # Ingress público Traefik para eca-api.alihaned.com
       - agent-net       # Bus privado de comunicación inter-agente (Tony <-> ECA <-> Alfred)
       - data-wiki-net   # Acceso exclusivo a Wiki Central (wiki.alihaned.com) y Living Codex
       - ar2-net         # Canal de inferencia dedicado con ALiRouter (LiteLLM)
@@ -83,8 +73,6 @@ networks:
     name: ecanet
 
   # 2. Redes existentes de la Malla Corporativa ALIHANED
-  dokploy-network:
-    external: true
   agent-net:
     external: true
   data-wiki-net:
