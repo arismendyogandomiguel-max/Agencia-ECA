@@ -68,6 +68,26 @@ ECA combina tres superpoderes en una sola tubería:
 
 ---
 
+## 🌟 EXPERIENCIA DE USUARIO AGÉNTICA (AGENTIC UX): EL FACTOR DE CALIDAD
+La calidad del producto final dependerá de que la interfaz no sea un formulario CRUD convencional, sino un **Entorno Agéntico Híbrido** diseñado con **Google Stitch / Generative UI**:
+
+1. **Arquitectura Split-Screen (Diálogo Agéntico + Canvas Interactivo):**
+   - **Panel Izquierdo / Drawer:** Chat permanente con **Eva** (estado de agentes, transcripción de instrucciones, sugerencias proactivas).
+   - **Panel Central / Canvas:** Previsualización viva del activo que se está construyendo (la línea de tiempo de video, el carrusel interactivo 1080x1920, la escaleta de guion editable).
+   - **Panel Derecho / Context Hub:** Conectores activos (Google Drive, Calendar, Postiz, Higgsfield) y selector de Workspace.
+2. **Puertas de Aprobación Human-in-the-Loop:**
+   - Cada entrega de los subagentes (un hook de Vera, una escena de Higgsfield de Kite) se presenta como una **tarjeta interactiva con acciones directas**:
+     - `[🟢 Aprobar para Render]`
+     - `[🔄 Regenerar con otro Ángulo]`
+     - `[✏️ Editar Manualmente]`
+3. **Flujo Cerrado de Extremo a Extremo (Intake ➔ Despacho):**
+   - **Ingesta:** Google Drive (fotos del producto) + Telegram (audio de brief).
+   - **Procesamiento:** Subagentes coordinados por Eva + Higgsfield AI vía MCP.
+   - **Organización & Almacenamiento:** Guion en Google Docs, master en Google Drive, evento en Google Calendar.
+   - **Publicación:** Despacho automatizado multicanal a través de Postiz.
+
+---
+
 ## 📐 ESPECIFICACIÓN DE PANELES PARA STITCH (DISEÑO GENERATIVO UI)
 
 Debes generar o iterar mediante Stitch / Generative UI los siguientes 6 módulos centrales:
