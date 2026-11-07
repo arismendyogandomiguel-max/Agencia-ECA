@@ -108,7 +108,10 @@ Agencia_Creativa_ECA/
 ---
 
 ## ⚡ REGLAS DE ORO PARA CLAUDE
-1. **API Oficial Primero, Render Asíncrono:** La generación pesada de video se delega a APIs cloud; el render local con FFmpeg se gestiona mediante colas para no sobrecargar el VPS de Dokploy.
+1. **Arquitectura de Cero Carga Local (Offloading vía MCP & n8n):**
+   - El servidor VPS en Dokploy NO realiza trabajo pesado de renderizado, difusión de video o entrenamiento local.
+   - **Eva es el cerebro coordinador:** Despacha el trabajo pesado hacia **n8n** (automatizaciones y webhooks largos) y hacia **MCPs dedicados** (Higgsfield AI para video, Google Drive para almacenamiento de masters sin saturar el disco del VPS, Postiz para despacho social).
+   - El contenedor de Hermes y la app web deben mantenerse ultralivianos (< 500MB RAM).
 2. **Inferencia por Defecto:** Utilizar el endpoint de inferencia de ALIHANED (`https://alirouter.alihaned.com` / LiteLLM) o el canal de ChatGPT/Codex para las tareas de copywriting y guionización.
 3. **Persistencia Dokploy:** Todo volumen persistente debe mapearse de forma limpia a `/opt/data/eca`.
 
