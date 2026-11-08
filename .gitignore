@@ -289,3 +289,7 @@ stitch-mockups/
 *.tsbuildinfo
 apps/web/tsconfig.tsbuildinfo
 
+
+# Local isolated workspace folder
+gitignore/
+

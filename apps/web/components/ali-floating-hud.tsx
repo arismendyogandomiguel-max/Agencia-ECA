@@ -12,24 +12,44 @@ import {
   ChevronDown, 
   X, 
   Sparkles,
-  Bot
+  Bot,
+  Copy,
+  Check,
+  ChevronUp,
+  RotateCcw
 } from 'lucide-react';
 import { AlihasTuxedoAvatar } from './ali-bowtie-avatar';
 
 interface AgentOption {
-  id: string;
+  id: 'eva' | 'atlas' | 'vera' | 'kite' | 'orin';
   name: string;
   role: string;
   color: string;
+  badgeColor: string;
 }
 
 const AGENTS: AgentOption[] = [
-  { id: 'eva', name: 'Eva', role: 'Directora & Orquestadora', color: 'text-violet-400' },
-  { id: 'atlas', name: 'Atlas', role: 'Estratega de Campañas', color: 'text-blue-400' },
-  { id: 'vera', name: 'Vera', role: 'Creadora UGC & Avatares', color: 'text-pink-400' },
-  { id: 'kite', name: 'Kite', role: 'Automatizador & Shopify', color: 'text-amber-400' },
-  { id: 'orin', name: 'Orin', role: 'Analista de Métricas', color: 'text-emerald-400' },
+  { id: 'eva', name: 'Eva', role: 'Directora & Orquestadora', color: 'text-violet-400', badgeColor: 'bg-violet-500/10 text-violet-300 border-violet-500/20' },
+  { id: 'atlas', name: 'Atlas', role: 'Estratega & Tendencias', color: 'text-cyan-400', badgeColor: 'bg-cyan-500/10 text-cyan-300 border-cyan-500/20' },
+  { id: 'vera', name: 'Vera', role: 'Guionista & Hooks 3s', color: 'text-pink-400', badgeColor: 'bg-pink-500/10 text-pink-300 border-pink-500/20' },
+  { id: 'kite', name: 'Kite', role: 'Director Visual 9:16', color: 'text-amber-400', badgeColor: 'bg-amber-500/10 text-amber-300 border-amber-500/20' },
+  { id: 'orin', name: 'Orin', role: 'Distribución & Postiz', color: 'text-emerald-400', badgeColor: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20' },
 ];
+
+const SUGGESTIONS = [
+  'Estructurar guion Reel 9:16 (30s)',
+  'Radar de tendencias virales',
+  'Estado de la Torre y Piso 1',
+  'Revisar cola de aprobaciones HITL'
+];
+
+interface ChatMessage {
+  id: string;
+  sender: string;
+  role: 'user' | 'agent';
+  text: string;
+  timestamp: string;
+}
 
 export const AliFloatingHUD: React.FC = () => {
   const [hudMode, setHudMode] = useState<'text' | 'voice'>('text');
@@ -37,6 +57,12 @@ export const AliFloatingHUD: React.FC = () => {
   const [isAgentMenuOpen, setIsAgentMenuOpen] = useState(false);
   const [inputText, setInputText] = useState('');
   
+  // Chat & Response states
+  const [isThinking, setIsThinking] = useState(false);
+  const [isResponseCardOpen, setIsResponseCardOpen] = useState(false);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
   // Voice controls
   const [isSpeakerMuted, setIsSpeakerMuted] = useState(false);
   const [isMicMuted, setIsMicMuted] = useState(false);
@@ -45,10 +71,33 @@ export const AliFloatingHUD: React.FC = () => {
 
   // Live response demo for voice mode
   const [voiceDisplayFeed, setVoiceDisplayFeed] = useState<string>(
-    'Eva conectada. Analizando métricas de TikTok Shop y sincronizando guiones de Vera con el catálogo de Shopify.'
+    'Eva conectada. Directora Creativa de ECA. Cuadrilla en posición y Brand Brain sincronizado.'
   );
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isResponseCardOpen) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [chatMessages, isResponseCardOpen]);
+
+  // Voice synthesis helper
+  const speakText = (text: string) => {
+    if (isSpeakerMuted || typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+    try {
+      window.speechSynthesis.cancel();
+      // Limpiar markdown básico para voz
+      const cleanVoiceText = text.replace(/[*_#`>-]/g, '').slice(0, 300);
+      const utterance = new SpeechSynthesisUtterance(cleanVoiceText);
+      utterance.lang = 'es-ES';
+      utterance.rate = playbackSpeed;
+      window.speechSynthesis.speak(utterance);
+    } catch (e) {
+      console.warn('SpeechSynthesis error:', e);
+    }
+  };
 
   // Toggle voice playback speeds
   const cycleSpeed = () => {
@@ -57,17 +106,198 @@ export const AliFloatingHUD: React.FC = () => {
     setPlaybackSpeed(speeds[nextIdx]);
   };
 
-  const handleSend = () => {
-    if (!inputText.trim()) return;
-    setVoiceDisplayFeed(`[${selectedAgent.name}] Procesando: "${inputText}"...`);
+  const handleSend = async (overridePrompt?: string) => {
+    const query = (overridePrompt || inputText).trim();
+    if (!query || isThinking) return;
+
+    const userMsg: ChatMessage = {
+      id: `user-${Date.now()}`,
+      sender: 'Tú',
+      role: 'user',
+      text: query,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+
+    setChatMessages((prev) => [...prev, userMsg]);
     setInputText('');
+    setIsThinking(true);
+    setIsResponseCardOpen(true);
+    setVoiceDisplayFeed(`[${selectedAgent.name}] Pensando: "${query}"...`);
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: query,
+          agentId: selectedAgent.id
+        })
+      });
+
+      const data = await res.json();
+      const responseText = data.response || `[${selectedAgent.name}] Procesado correctamente.`;
+
+      const agentMsg: ChatMessage = {
+        id: `agent-${Date.now()}`,
+        sender: selectedAgent.name,
+        role: 'agent',
+        text: responseText,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+
+      setChatMessages((prev) => [...prev, agentMsg]);
+      setVoiceDisplayFeed(responseText);
+
+      // Si estamos en modo voz, reproducir síntesis
+      if (hudMode === 'voice') {
+        speakText(responseText);
+      }
+    } catch (error) {
+      console.error('Error enviando mensaje al agente:', error);
+      const errorMsg: ChatMessage = {
+        id: `err-${Date.now()}`,
+        sender: selectedAgent.name,
+        role: 'agent',
+        text: 'Ocurrió un error conectando con el servicio del agente. Revisa la consola o intenta nuevamente.',
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setChatMessages((prev) => [...prev, errorMsg]);
+    } finally {
+      setIsThinking(false);
+    }
+  };
+
+  const handleCopy = (id: string, text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-2xl px-4 pointer-events-auto">
       
+      {/* ─── VISOR FLOTANTE DE RESPUESTA / CONSOLA DE DIÁLOGO AGÉNTICO ─── */}
+      {isResponseCardOpen && (
+        <div className="mb-3 bg-[#0d0d12]/95 backdrop-blur-2xl border border-violet-500/40 rounded-2xl shadow-2xl shadow-violet-950/60 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200">
+          
+          {/* Header de la Consola */}
+          <div className="px-4 py-2.5 bg-[#121217] border-b border-[#27272a] flex items-center justify-between text-xs">
+            <div className="flex items-center gap-2">
+              <span className={`w-2 h-2 rounded-full ${isThinking ? 'bg-amber-400 animate-ping' : 'bg-emerald-400'}`} />
+              <span className="font-bold text-white flex items-center gap-1.5">
+                {selectedAgent.name} 
+                <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded border ${selectedAgent.badgeColor}`}>
+                  {selectedAgent.role}
+                </span>
+              </span>
+            </div>
+
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setChatMessages([])}
+                title="Limpiar conversación"
+                className="p-1 text-[#71717a] hover:text-[#a1a1aa] rounded transition-colors"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsResponseCardOpen(false)}
+                title="Cerrar consola"
+                className="p-1 text-[#71717a] hover:text-white rounded transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Área de Mensajes con Scroll */}
+          <div className="p-4 max-h-72 overflow-y-auto space-y-3 text-xs leading-relaxed select-text scrollbar-thin">
+            {chatMessages.length === 0 ? (
+              <div className="text-center py-6 text-[#71717a] space-y-2">
+                <Sparkles className="w-6 h-6 text-violet-400 mx-auto opacity-70 animate-pulse" />
+                <p className="text-xs text-[#a1a1aa]">Escribe tu instrucción o elige un atajo rápido para {selectedAgent.name}.</p>
+                
+                {/* Sugerencias Rápidas */}
+                <div className="flex flex-wrap justify-center gap-1.5 pt-2">
+                  {SUGGESTIONS.map((sug, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => handleSend(sug)}
+                      className="bg-[#18181b] hover:bg-violet-600/20 hover:border-violet-500/40 border border-[#27272a] text-[#d4d4d8] text-[11px] px-2.5 py-1 rounded-full transition-colors"
+                    >
+                      {sug}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              chatMessages.map((msg) => (
+                <div 
+                  key={msg.id} 
+                  className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
+                >
+                  <div className="flex items-center gap-1.5 mb-1 px-1 text-[10px] text-[#71717a] font-mono">
+                    <span>{msg.sender}</span>
+                    <span>·</span>
+                    <span>{msg.timestamp}</span>
+                  </div>
+
+                  <div className={`relative group max-w-[90%] rounded-xl px-3.5 py-2.5 whitespace-pre-wrap ${
+                    msg.role === 'user' 
+                      ? 'bg-violet-600 text-white rounded-br-sm shadow-md shadow-violet-950/40' 
+                      : 'bg-[#18181b] border border-[#27272a] text-[#f4f4f5] rounded-bl-sm shadow-sm'
+                  }`}>
+                    {msg.text}
+
+                    {msg.role === 'agent' && (
+                      <button
+                        onClick={() => handleCopy(msg.id, msg.text)}
+                        title="Copiar respuesta"
+                        className="absolute right-2 top-2 p-1 rounded bg-[#27272a]/80 opacity-0 group-hover:opacity-100 hover:text-white transition-opacity text-[#a1a1aa]"
+                      >
+                        {copiedId === msg.id ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+
+            {/* Thinking / Streaming Indicator */}
+            {isThinking && (
+              <div className="flex items-center gap-2 p-3 bg-[#18181b]/60 border border-violet-500/20 rounded-xl">
+                <span className="w-2 h-2 rounded-full bg-violet-400 animate-ping" />
+                <span className="text-[11px] text-violet-300 font-mono animate-pulse">
+                  {selectedAgent.name} está redactando y consultando el Brand Brain...
+                </span>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Quick chips en pie de consola cuando hay mensajes */}
+          {chatMessages.length > 0 && !isThinking && (
+            <div className="px-4 py-2 bg-[#09090b] border-t border-[#27272a] flex items-center gap-1.5 overflow-x-auto scrollbar-none">
+              <span className="text-[10px] text-[#71717a] shrink-0 font-mono">Atajos:</span>
+              {SUGGESTIONS.map((sug, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleSend(sug)}
+                  className="shrink-0 bg-[#121217] hover:bg-[#18181b] border border-[#27272a] text-[#a1a1aa] hover:text-white text-[10px] px-2 py-0.5 rounded-full transition-colors"
+                >
+                  {sug}
+                </button>
+              ))}
+            </div>
+          )}
+
+        </div>
+      )}
+
       {/* ─── VISOR SUPERIOR FLOTANTE (MINI-DISPLAY PARA MODO VOZ) ─── */}
-      {hudMode === 'voice' && (
+      {hudMode === 'voice' && !isResponseCardOpen && (
         <div className="mb-2 bg-[#09090b]/95 backdrop-blur-xl border border-violet-500/30 rounded-2xl p-3 shadow-2xl shadow-violet-950/50 animate-in fade-in slide-in-from-bottom-2 duration-200">
           <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b border-[#27272a] text-[11px]">
             <div className="flex items-center gap-2">
@@ -79,10 +309,18 @@ export const AliFloatingHUD: React.FC = () => {
                 </span>
               )}
             </div>
-            <span className="text-[10px] font-mono text-[#a1a1aa]">{playbackSpeed}x</span>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => setIsResponseCardOpen(true)}
+                className="text-[10px] text-violet-400 hover:underline font-mono"
+              >
+                Abrir Historial
+              </button>
+              <span className="text-[10px] font-mono text-[#a1a1aa]">{playbackSpeed}x</span>
+            </div>
           </div>
 
-          {/* Visor de texto: Máximo 3 líneas con scroll si excede */}
+          {/* Visor de texto con scroll */}
           <div className="text-xs text-[#fafafa] leading-relaxed max-h-16 overflow-y-auto pr-1 select-text scrollbar-thin">
             {voiceDisplayFeed}
           </div>
@@ -103,8 +341,9 @@ export const AliFloatingHUD: React.FC = () => {
             {/* Tuxedo Avatar / Activador del Corbatín */}
             <AlihasTuxedoAvatar
               size={36}
-              active={false}
-              title="Alihas — Clic para abrir opciones"
+              active={isThinking}
+              glow={isThinking}
+              title="Alihas — Clic para abrir opciones de cuadrilla"
               onClick={() => setIsAgentMenuOpen(!isAgentMenuOpen)}
             />
 
@@ -122,7 +361,7 @@ export const AliFloatingHUD: React.FC = () => {
 
               {/* Menú Dropdown de Agentes */}
               {isAgentMenuOpen && (
-                <div className="absolute bottom-11 left-0 bg-[#09090b] border border-[#27272a] rounded-xl p-1.5 w-52 shadow-2xl z-50 space-y-1">
+                <div className="absolute bottom-11 left-0 bg-[#09090b] border border-[#27272a] rounded-xl p-1.5 w-56 shadow-2xl z-50 space-y-1">
                   <div className="text-[10px] text-[#a1a1aa] px-2 py-1 font-mono uppercase tracking-wider">
                     Cuadrilla de Agentes
                   </div>
@@ -137,8 +376,11 @@ export const AliFloatingHUD: React.FC = () => {
                         selectedAgent.id === ag.id ? 'bg-violet-600/20 text-white' : 'hover:bg-[#18181b] text-[#d4d4d8]'
                       }`}
                     >
-                      <span className={`font-semibold ${ag.color}`}>{ag.name}</span>
-                      <span className="text-[10px] text-[#71717a]">{ag.role}</span>
+                      <div>
+                        <div className={`font-semibold ${ag.color}`}>{ag.name}</div>
+                        <div className="text-[9px] text-[#71717a] font-mono">{ag.role}</div>
+                      </div>
+                      {selectedAgent.id === ag.id && <Check className="w-3.5 h-3.5 text-violet-400" />}
                     </button>
                   ))}
                 </div>
@@ -163,13 +405,32 @@ export const AliFloatingHUD: React.FC = () => {
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               placeholder={`Instruye a ${selectedAgent.name} o busca en la agencia...`}
-              className="flex-1 bg-transparent border-0 text-xs text-white placeholder-[#71717a] focus:outline-none px-2"
+              disabled={isThinking}
+              className="flex-1 bg-transparent border-0 text-xs text-white placeholder-[#71717a] focus:outline-none px-2 disabled:opacity-50"
             />
+
+            {/* Botón Consola/Historial Toggle */}
+            <button
+              type="button"
+              onClick={() => setIsResponseCardOpen(!isResponseCardOpen)}
+              title={isResponseCardOpen ? 'Ocultar consola' : 'Abrir consola de diálogo'}
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                isResponseCardOpen ? 'bg-violet-600/30 text-violet-300' : 'text-[#a1a1aa] hover:text-white hover:bg-[#27272a]'
+              }`}
+            >
+              {isResponseCardOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+            </button>
 
             {/* Botón Micrófono para Dictado */}
             <button
               type="button"
-              onClick={() => setIsDictating(!isDictating)}
+              onClick={() => {
+                setIsDictating(!isDictating);
+                if (!isDictating) {
+                  // Dictado rápido simulado
+                  setInputText('Eva, analiza el reporte de la Torre');
+                }
+              }}
               title={isDictating ? 'Detener dictado' : 'Dictar instrucción'}
               className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
                 isDictating 
@@ -183,9 +444,10 @@ export const AliFloatingHUD: React.FC = () => {
             {/* Botón Enviar */}
             <button
               type="button"
-              onClick={handleSend}
+              onClick={() => handleSend()}
+              disabled={isThinking || !inputText.trim()}
               title="Enviar comando"
-              className="w-8 h-8 rounded-full bg-violet-600 hover:bg-violet-500 flex items-center justify-center text-white transition-colors shadow-md shadow-violet-950"
+              className="w-8 h-8 rounded-full bg-violet-600 hover:bg-violet-500 disabled:opacity-40 disabled:hover:bg-violet-600 flex items-center justify-center text-white transition-colors shadow-md shadow-violet-950"
             >
               <Send className="w-3.5 h-3.5" />
             </button>
@@ -193,7 +455,10 @@ export const AliFloatingHUD: React.FC = () => {
             {/* Botón Switch a MODO VOZ */}
             <button
               type="button"
-              onClick={() => setHudMode('voice')}
+              onClick={() => {
+                setHudMode('voice');
+                setIsResponseCardOpen(false);
+              }}
               title="Entrar a Modo Voz Conversacional"
               className="flex items-center gap-1 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-[11px] font-semibold px-3 py-1.5 rounded-full transition-all shadow-md shadow-indigo-950"
             >
@@ -216,7 +481,7 @@ export const AliFloatingHUD: React.FC = () => {
             />
 
             {/* Ondas de Sonido Dinámicas (Espectro de Luz Visible) */}
-            <div className="flex-1 flex items-center justify-center gap-1.5 h-8 px-4">
+            <div className="flex-1 flex items-center justify-center gap-1.5 h-8 px-4 cursor-pointer" onClick={() => setIsResponseCardOpen(!isResponseCardOpen)}>
               <span className="w-1 rounded-full bg-[#ef4444] animate-[bounce_0.8s_infinite_100ms] h-4" />
               <span className="w-1 rounded-full bg-[#f97316] animate-[bounce_0.8s_infinite_200ms] h-7" />
               <span className="w-1 rounded-full bg-[#eab308] animate-[bounce_0.8s_infinite_300ms] h-5" />
